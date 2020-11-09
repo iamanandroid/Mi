@@ -91,18 +91,31 @@ def squares_coordinates_update():
     if the square coordinates would be out of range in the next game moment.
     """
     for i in range(number_of_squares):
+        x = squares_coordinates[i][0]
+        y = squares_coordinates[i][1]
         r = squares_coordinates[i][2]
-        if squares_coordinates[i][0] + squares_movement[i][0] + r > screen_x or squares_coordinates[i][1] + \
-                squares_movement[i][0] ** 2 * squares_movement[i][1] + squares_movement[i][2] + r > screen_y or \
-                squares_coordinates[i][0] + squares_movement[i][0] - r < 0 or squares_coordinates[i][1] + \
-                squares_movement[i][0] ** 2 * squares_movement[i][1] + squares_movement[i][2] - r < 0:
-            squares_movement[i][0] = -squares_movement[i][0]
-            squares_movement[i][1] = - squares_movement[i][1]
-            squares_movement[i][2] = -squares_movement[i][2]
-        squares_coordinates[i][0] += squares_movement[i][0]
-        squares_coordinates[i][1] += squares_movement[i][0] ** 2 * squares_movement[i][1] + squares_movement[i][2]
-        rect(screen, squares_coordinates[i][3], (
-            squares_coordinates[i][0], squares_coordinates[i][1], squares_coordinates[i][2], squares_coordinates[i][2]))
+        vx = squares_movement[i][0]
+        vy = squares_movement[i][1]
+        vr = squares_movement[i][2]
+        if x + vx + r > screen_x:
+            squares_movement[i][0] = -vx
+            squares_movement[i][1] = -vy
+            squares_movement[i][2] = -vr
+        elif y + vx ** 2 * vy + vr + r > screen_y:
+            squares_movement[i][0] = -vx
+            squares_movement[i][1] = -vy
+            squares_movement[i][2] = -vr
+        elif x + vx - r < 0:
+            squares_movement[i][0] = -vx
+            squares_movement[i][1] = -vy
+            squares_movement[i][2] = -vr
+        elif y + vx ** 2 * vy + vr - r < 0:
+            squares_movement[i][0] = -vx
+            squares_movement[i][1] = -vy
+            squares_movement[i][2] = -vr
+        squares_coordinates[i][0] = x + vx
+        squares_coordinates[i][1] = y + vx ** 2 * vy + vr
+        rect(screen, squares_coordinates[i][3], (x, y, r, r))
 
 
 def balls_coordinates_update():
@@ -113,18 +126,25 @@ def balls_coordinates_update():
     if the ball coordinates would be out of range in the next game moment.
     """
     for i in range(number_of_balls):
+        x = balls_coordinates[i][0]
+        y = balls_coordinates[i][1]
         r = balls_coordinates[i][2]
-        if balls_coordinates[i][0] + balls_movement[i][1] + r > screen_x\
-                or balls_coordinates[i][1] + balls_movement[i][
-            0] * \
-                balls_movement[i][1] + r > screen_y or \
-                balls_coordinates[i][0] + balls_movement[i][1] - r < 0 or balls_coordinates[i][1] + balls_movement[i][
-            0] * balls_movement[i][1] - r < 0:
+        vx = balls_movement[i][0]
+        vy = balls_movement[i][1]
+        if x + vy + r > screen_x:
+            balls_movement[i][1] = - vy
+        elif y + vx * vy + r > screen_y:
+            balls_movement[i][1] = - vy
+        elif y + vx * vy + r > screen_y:
+            balls_movement[i][1] = - vy
+        elif x + vy - r < 0:
             balls_movement[i][1] = - balls_movement[i][1]
-        balls_coordinates[i][0] += balls_movement[i][1]
-        balls_coordinates[i][1] += balls_movement[i][0] * balls_movement[i][1]
-        circle(screen, balls_coordinates[i][3], (balls_coordinates[i][0], balls_coordinates[i][1]),
-               balls_coordinates[i][2])
+        elif y + vx * vy - r < 0:
+            balls_movement[i][1] = - vy
+
+        balls_coordinates[i][0] += vy
+        balls_coordinates[i][1] += vx * vy
+        circle(screen, balls_coordinates[i][3], (x, y), r)
 
 
 # Main body of the function
