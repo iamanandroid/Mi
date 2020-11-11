@@ -1,16 +1,17 @@
 import pygame
 from pygame.draw import *
 from random import randint
+
 pygame.init()
 
-# Setting game parameters
+# Constants
 
+# Screen's constants
 FPS = 30
-x_size = 1200
-y_size = 700
-screen = pygame.display.set_mode((x_size, y_size))
+WIDTH = 1200
+HEIGHT = 700
 
-# Creating colors
+# Colors
 
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
@@ -21,7 +22,7 @@ CYAN = (0, 255, 255)
 BLACK = (0, 0, 0)
 COLORS = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]
 
-# Setting parameters of targets and number of them
+# Global variables
 
 global balls_coordinates
 global number_of_balls
@@ -31,15 +32,19 @@ global number_of_squares
 global squares_coordinates
 
 
+# Functions
+
 def new_square(i):
     """Draws a new square.
-       x - horizontal coordinate of the square
-       y - vertical coordinate of the square
-       r - radius of a circle inscribed in a square
-       velocity - speed of the square
+
+    Args:
+        x - horizontal coordinate of the square
+        y - vertical coordinate of the square
+        r - radius of a circle inscribed in a square
+        velocity - speed of the square
     """
-    x = randint(100, x_size - 100)
-    y = randint(100, y_size - 100)
+    x = randint(100, WIDTH - 100)
+    y = randint(100, HEIGHT - 100)
     r = randint(10, 50)
     color = COLORS[randint(0, 5)]
     squares_coordinates[i] = [x, y, r, color]
@@ -48,10 +53,12 @@ def new_square(i):
 
 def new_ball(i, x, y, r, velocity):
     """Draws a new ball.
-       x - horizontal coordinate of the ball
-       y - vertical coordinate of the ball
-       r - ball radius
-       velocity - speed of the ball
+
+    Args:
+        x - horizontal coordinate of the ball
+        y - vertical coordinate of the ball
+        r - ball radius
+        velocity - speed of the ball
      """
     color = COLORS[randint(0, 5)]
     balls_coordinates[i] = [x, y, r, color]
@@ -148,7 +155,7 @@ def balls_coordinates_update():
 
 
 # Main body of the function
-
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.update()
 clock = pygame.time.Clock()
 finished = False
@@ -158,8 +165,8 @@ hits_in_row = 0
 
 # Setting parameters of the game
 
-screen_x = x_size
-screen_y = y_size
+screen_x = WIDTH
+screen_y = HEIGHT
 misses = 10
 number_of_balls = 7
 number_of_squares = 3
@@ -176,8 +183,8 @@ while not finished:
         font = pygame.font.Font(None, 62)
         text = font.render("Добро пожаловать в мою игру ", 1, (255, 255, 255))
         text1 = font.render("Нажмите кнопку мыши для продолжения ", 1, (255, 255, 255))
-        place = text.get_rect(center=(int(x_size / 2), int(y_size / 8)))
-        place1 = text.get_rect(center=(int(x_size / 2), int(y_size / 8) + 70))
+        place = text.get_rect(center=(int(WIDTH / 2), int(HEIGHT / 8)))
+        place1 = text.get_rect(center=(int(WIDTH / 2), int(HEIGHT / 8) + 70))
         screen.blit(text, place)
         screen.blit(text1, place1)
         pygame.display.update()
@@ -211,8 +218,8 @@ while not finished:
                     score += max(1,
                                  int(abs(balls_movement[hit_ball][1]) ** 2 / 10 / balls_coordinates[hit_ball][2] * 40))
                     print(score)
-                    x_of_newball = randint(100, x_size - 100)
-                    y_of_newball = randint(100, y_size - 100)
+                    x_of_newball = randint(100, WIDTH - 100)
+                    y_of_newball = randint(100, HEIGHT - 100)
                     radius_of_newball = randint(10, 50)
                     new_ball(hit_ball, x_of_newball, y_of_newball, radius_of_newball, abs(balls_movement[i][1]) + 1)
                 elif hit_square > -1:
@@ -230,8 +237,8 @@ while not finished:
                     text = font.render("GAME OVER", 1, (255, 255, 255))
                     font = pygame.font.Font(None, 62)
                     text1 = font.render("Ваш результат: " + str(score), 1, (255, 255, 255))
-                    place = text.get_rect(center=(int(x_size / 2), int(y_size / 2)))
-                    place1 = text.get_rect(center=(int(x_size / 2) + 7, int(y_size / 2) + 70))
+                    place = text.get_rect(center=(int(WIDTH / 2), int(HEIGHT / 2)))
+                    place1 = text.get_rect(center=(int(WIDTH / 2) + 7, int(HEIGHT / 2) + 70))
                     screen.blit(text, place)
                     screen.blit(text1, place1)
                     pygame.display.update()
@@ -248,7 +255,7 @@ while not finished:
                             if Previous_Results[i] > score:
                                 break
                         text2 = font.render("Вы лучше " + str(i) + " игроков", 1, (255, 255, 255))
-                        place2 = text.get_rect(center=(int(x_size / 2) - 10, int(y_size / 2) + 120))
+                        place2 = text.get_rect(center=(int(WIDTH / 2) - 10, int(HEIGHT / 2) + 120))
                         screen.blit(text2, place2)
                         pygame.display.update()
                     with open("Records_Table.txt", 'a+') as Records_Table:
@@ -268,9 +275,9 @@ while not finished:
 
         font = pygame.font.Font(None, 62)
         text = font.render(str(score), 1, (255, 255, 255))
-        place = text.get_rect(center=(int(x_size / 2), int(y_size / 8)))
+        place = text.get_rect(center=(int(WIDTH / 2), int(HEIGHT / 8)))
         text1 = font.render(str(misses), 1, (255, 255, 255))
-        place1 = text.get_rect(center=(int(x_size / 2), int(y_size / 1.1)))
+        place1 = text.get_rect(center=(int(WIDTH / 2), int(HEIGHT / 1.1)))
         screen.blit(text, place)
         screen.blit(text1, place1)
 pygame.quit()
