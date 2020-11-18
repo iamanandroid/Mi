@@ -12,7 +12,7 @@ WIDTH = 1200
 HEIGHT = 700
 
 # Colors
-
+WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
@@ -154,6 +154,37 @@ def balls_coordinates_update():
         circle(screen, balls_coordinates[i][3], (x, y), r)
 
 
+def leaders():
+    """Players' score.
+
+    Reading file with old players' score and then adding to the file new player's score.
+    Then sorts all scores and rewrites the file. Player's name shouldn't be empty.
+    """
+    if text != '':
+        data = []
+        with open('Records_Table.txt') as file:
+            for line in file:
+                data.append(line.split())
+        data.append([str(text), str(score)])
+        for i in range(len(data)):
+            if len(data[i]) > 2:
+                num = ''.join(data[i][-1:])
+                data[i] = [' '.join(data[i][:-1])]
+                data[i].append(num)
+
+        def player_score(player):
+            name_text, players_score = player
+            return int(players_score)
+
+        sorted_score = sorted(data, key=player_score, reverse=True)
+        for i in range(len(sorted_score)):
+            sorted_score[i] = ' '.join(sorted_score[i])
+        sorted_score_line = '\n'.join(sorted_score)
+        output = open('Records_Table.txt', 'w')
+        output.write(sorted_score_line)
+        output.close()
+
+
 # Main body of the function
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.update()
@@ -164,7 +195,10 @@ flag = -2
 hits_in_row = 0
 
 # Setting parameters of the game
-
+text = ''
+font_surface = pygame.font.SysFont('comic sans', 48)
+finished = False
+error = font_surface.render('Enter your name!', True, WHITE)
 screen_x = WIDTH
 screen_y = HEIGHT
 misses = 10
@@ -174,20 +208,39 @@ squares_movement = [[]] * number_of_squares
 squares_coordinates = [[]] * number_of_squares
 balls_movement = [[]] * number_of_balls
 balls_coordinates = [[]] * number_of_balls
+screen.fill(WHITE)
 while not finished:
     clock.tick(FPS)
 
     # Making starting screen
 
     if flag == -2:
-        font = pygame.font.Font(None, 62)
-        text = font.render("Добро пожаловать в мою игру ", 1, (255, 255, 255))
-        text1 = font.render("Нажмите кнопку мыши для продолжения ", 1, (255, 255, 255))
-        place = text.get_rect(center=(int(WIDTH / 2), int(HEIGHT / 8)))
-        place1 = text.get_rect(center=(int(WIDTH / 2), int(HEIGHT / 8) + 70))
-        screen.blit(text, place)
-        screen.blit(text1, place1)
+        title = font_surface.render('Enter your name, please ', True, BLACK)
+        warning = font_surface.render('Click on mouse to continue ', True, BLACK)
+        name = font_surface.render(text, True, BLACK)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                finished = True
+                pygame.mixer.music.pause()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if flag == 1:
+                    pass
+                elif flag == -2:
+                    if text == '':
+                        error = font_surface.render('Enter your name!', True, BLACK)
+                    else:
+                        flag = -1
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_BACKSPACE:
+                    text = text[:-1]
+                else:
+                    text += event.unicode
+        screen.blit(title, (WIDTH // 2 - 230, HEIGHT // 2 - 160))
+        screen.blit(name, (WIDTH // 2 - 230, HEIGHT // 2 - 100))
+        screen.blit(error, (WIDTH // 2 - 230, HEIGHT // 2 + 100))
+        screen.blit(warning, (WIDTH // 2 - 230, HEIGHT // 2 + 200))
         pygame.display.update()
+        screen.fill(WHITE)
 
     # Creating targets for the game
 
@@ -195,7 +248,6 @@ while not finished:
         for i in range(number_of_balls):
             new_ball(i, randint(100, screen_x - 100), randint(100, screen_y - 100),
                      randint(10, 50), 1)
-        print(balls_coordinates)
         for i in range(number_of_squares):
             squares_movement[i] = [randint(-5, 5), randint(-2, 2), randint(-5, 5)]
         for i in range(number_of_squares):
@@ -217,7 +269,6 @@ while not finished:
                     hits_in_row += 1
                     score += max(1,
                                  int(abs(balls_movement[hit_ball][1]) ** 2 / 10 / balls_coordinates[hit_ball][2] * 40))
-                    print(score)
                     x_of_newball = randint(100, WIDTH - 100)
                     y_of_newball = randint(100, HEIGHT - 100)
                     radius_of_newball = randint(10, 50)
@@ -225,7 +276,6 @@ while not finished:
                 elif hit_square > -1:
                     hits_in_row += 1
                     score += 5
-                    print(score)
                     new_square(hit_square)
 
                 else:
@@ -244,22 +294,6 @@ while not finished:
                     pygame.display.update()
                     flag = 1
 
-                    # Updating Records table
-
-                    with open("Records_Table.txt", 'r') as Records_Table:
-                        Previous_Results = list(Records_Table.read().split('\n'))
-                        Previous_Results.pop()
-                        Previous_Results = list(map(int, Previous_Results))
-                        Previous_Results.sort()
-                        for i in range(len(Previous_Results)):
-                            if Previous_Results[i] > score:
-                                break
-                        text2 = font.render("Вы лучше " + str(i) + " игроков", 1, (255, 255, 255))
-                        place2 = text.get_rect(center=(int(WIDTH / 2) - 10, int(HEIGHT / 2) + 120))
-                        screen.blit(text2, place2)
-                        pygame.display.update()
-                    with open("Records_Table.txt", 'a+') as Records_Table:
-                        Records_Table.write(str(score) + '\n')
     #  Main stage of the game
 
     if flag == 0:
@@ -274,10 +308,12 @@ while not finished:
         # Writing the score
 
         font = pygame.font.Font(None, 62)
-        text = font.render(str(score), 1, (255, 255, 255))
-        place = text.get_rect(center=(int(WIDTH / 2), int(HEIGHT / 8)))
-        text1 = font.render(str(misses), 1, (255, 255, 255))
-        place1 = text.get_rect(center=(int(WIDTH / 2), int(HEIGHT / 1.1)))
-        screen.blit(text, place)
+        text1 = font.render(str(score), 1, (255, 255, 255))
+        place1 = text1.get_rect(center=(int(WIDTH / 2), int(HEIGHT / 8)))
+        text2 = font.render(str(misses), 1, (255, 255, 255))
+        place2 = text1.get_rect(center=(int(WIDTH / 2), int(HEIGHT / 1.1)))
         screen.blit(text1, place1)
+        screen.blit(text2, place2)
+
+leaders()
 pygame.quit()
